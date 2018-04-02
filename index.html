@@ -1,41 +1,55 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Component Lifecycle</title>
+    <title>Component Lifecycle</title>
     <script src="https://fb.me/react-0.13.3.min.js"></script>
     <script src="https://fb.me/JSXTransformer-0.13.3.js"></script>
-    <style type="text/css">
-        div {
-            background-color: blue;
-            height: 200px;
-            width: 200px;
-        }
-    </style>
 </head>
+
 <body>
-<script type="text/jsx">
-    var Box = React.createClass( {
-        componentWillMount: function() {
-            alert("component is about to mount");
-        },
-        componentDidMount: function() {
-            alert('component has mounted')
-        },
-        render: function() {
-            return <div></div>;
-        }
-    });
-
-    React.render(<Box />, document.body);
-
-    var getRidOfBox = document.getElementsByTagName('div')[0];
-    getRidOfBox.onclick = function() {
-        React.unmountComponentAtNode(document.body);
-        alert("component is unmounted")
-    }
-
-
-
-</script>
+    <script type="text/jsx">
+        var Box = React.createClass( {
+            //The default properties will 
+            getDefaultProps: function() {
+                return {
+                    //It fires when our component loads (the first click will change to red)
+                    colorIndex: -1
+                }
+            },
+            //This will set the inital state
+            getInitialState: function() {
+                return {
+                    backgroundColor: "blue",
+                    height: 200,
+                    width: 200
+                }
+            },
+            //After the color change, the colorIndex will change (+1)
+            update: function() {
+                this.setProps({colorIndex: this.props.colorIndex + 1});
+            },
+            //Allow us to send new properties to a component (after an updtate)
+            //Always takes in "nrexprops" as an argument
+            componentWillReceiveProps: function(nextProps) {
+                //This will helps us process the string of colors. Parse the string based on comas.
+                var color = this.props.colors.split(',')[nextProps.colorIndex];
+                //When we already cicle trough the colors the colorIndex will be reset back to 0. 
+                if(!color) {this.setProps({colorIndex:0})}
+                //We will update the state to change the background color
+                this.setState({backgroundColor: color});
+            },
+            render: function() {
+                //When we click the div the function is triggered
+                return <div style={this.state} onClick={this.update}></div>;
+            }
+        });
+    
+        React.render(<Box colors="Red,Yellow,Green,Chartreuse,Orange"/>, document.body);
+    
+    
+    
+    </script>
 </body>
+
 </html>
